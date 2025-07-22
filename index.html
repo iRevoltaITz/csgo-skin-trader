@@ -1,0 +1,2957 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔫 CS:GO Skin Trader - iRevoltaITz</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #0f1419;
+            --secondary-bg: #1a1f2e;
+            --accent-bg: #242b3d;
+            --card-bg: rgba(30, 35, 50, 0.8);
+            --text-primary: #ffffff;
+            --text-secondary: #a8b2d1;
+            --accent-blue: #4a9eff;
+            --accent-green: #22c55e;
+            --accent-orange: #f97316;
+            --accent-purple: #8b5cf6;
+            --accent-red: #ef4444;
+            --accent-yellow: #eab308;
+            --border-color: rgba(74, 158, 255, 0.2);
+            --hover-bg: rgba(74, 158, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 50%, var(--primary-bg) 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-primary);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(74, 158, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-error {
+            color: var(--accent-red);
+            text-align: center;
+            margin-top: 20px;
+            max-width: 400px;
+        }
+
+        .loading-error button {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .loading-error button:hover {
+            background: #3b82f6;
+        }
+
+        .sync-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .sync-success {
+            background: rgba(34, 197, 94, 0.25);
+            color: var(--accent-green);
+            border: 2px solid rgba(34, 197, 94, 0.4);
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2);
+        }
+
+        .sync-error {
+            background: rgba(239, 68, 68, 0.25);
+            color: var(--accent-red);
+            border: 2px solid rgba(239, 68, 68, 0.4);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2);
+            animation: pulse-red 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2); }
+            50% { box-shadow: 0 4px 25px rgba(239, 68, 68, 0.4); }
+            100% { box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2); }
+        }
+
+        .sync-loading {
+            background: rgba(74, 158, 255, 0.25);
+            color: var(--accent-blue);
+            border: 2px solid rgba(74, 158, 255, 0.4);
+            box-shadow: 0 4px 20px rgba(74, 158, 255, 0.2);
+        }
+
+        .sync-offline {
+            background: rgba(234, 179, 8, 0.25);
+            color: var(--accent-yellow);
+            border: 2px solid rgba(234, 179, 8, 0.4);
+            box-shadow: 0 4px 20px rgba(234, 179, 8, 0.2);
+            animation: pulse-yellow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-yellow {
+            0% { box-shadow: 0 4px 20px rgba(234, 179, 8, 0.2); }
+            50% { box-shadow: 0 4px 25px rgba(234, 179, 8, 0.4); }
+            100% { box-shadow: 0 4px 20px rgba(234, 179, 8, 0.2); }
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--accent-bg) 0%, var(--secondary-bg) 100%);
+            padding: 25px;
+            text-align: center;
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.3),
+                0 1px 0 var(--border-color);
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        header h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 2.2rem;
+            color: var(--text-primary);
+            text-shadow: 0 0 20px rgba(74, 158, 255, 0.3);
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .cotacao, .horario-info, .user-info {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .cotacao {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--accent-green);
+            border-color: rgba(34, 197, 94, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 20px;
+        }
+
+        .cotacao:hover {
+            background: rgba(34, 197, 94, 0.2);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+        }
+
+        .cotacao-text {
+            display: flex;
+            align-items: center;
+        }
+
+        .cotacao-buttons {
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .cotacao:hover .cotacao-buttons {
+            opacity: 1;
+        }
+
+        .btn-cotacao {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            opacity: 1 !important;
+        }
+
+        .btn-cotacao:hover {
+            background: #3b82f6;
+            transform: translateY(-1px);
+        }
+
+        .btn-edit-cotacao {
+            background: var(--accent-purple);
+        }
+
+        .btn-edit-cotacao:hover {
+            background: #7c3aed;
+        }
+
+        .horario-info {
+            background: rgba(74, 158, 255, 0.15);
+            color: var(--accent-blue);
+            border-color: rgba(74, 158, 255, 0.3);
+        }
+
+        .horario-info:hover {
+            background: rgba(74, 158, 255, 0.2);
+            box-shadow: 0 0 20px rgba(74, 158, 255, 0.2);
+        }
+
+        .user-info {
+            background: rgba(249, 115, 22, 0.15);
+            color: var(--accent-orange);
+            border-color: rgba(249, 115, 22, 0.3);
+            font-weight: 700;
+        }
+
+        .user-info:hover {
+            background: rgba(249, 115, 22, 0.2);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+        }
+
+        main {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            margin-bottom: 30px;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 1px 0 rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .add-produto h2 {
+            color: var(--accent-blue);
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .registro-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-registro-tipo {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+        }
+
+        .btn-novo-item {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #3b82f6 100%);
+        }
+
+        .btn-item-antigo {
+            background: linear-gradient(135deg, var(--accent-purple) 0%, #7c3aed 100%);
+        }
+
+        .btn-item-vendido {
+            background: linear-gradient(135deg, var(--accent-orange) 0%, #ea580c 100%);
+        }
+
+        .btn-item-finalizado {
+            background: linear-gradient(135deg, var(--accent-green) 0%, #16a34a 100%);
+        }
+
+        .smart-form {
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .smart-form.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            background: var(--accent-bg);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
+        }
+
+        .date-helper {
+            background: rgba(74, 158, 255, 0.1);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--accent-blue);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #3b82f6 100%);
+            color: var(--text-primary);
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(74, 158, 255, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-green) 0%, #16a34a 100%);
+            font-size: 13px;
+            padding: 10px 18px;
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--accent-yellow) 0%, #ca8a04 100%);
+            color: var(--primary-bg);
+            font-size: 13px;
+            padding: 10px 18px;
+        }
+
+        .btn-warning:hover {
+            box-shadow: 0 6px 20px rgba(234, 179, 8, 0.3);
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, var(--accent-purple) 0%, #7c3aed 100%);
+            color: var(--text-primary);
+            font-size: 12px;
+            padding: 8px 14px;
+        }
+
+        .btn-edit:hover {
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .view-selector {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .view-tab {
+            background: var(--accent-bg);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .view-tab.active {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #3b82f6 100%);
+            color: var(--text-primary);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px rgba(74, 158, 255, 0.3);
+        }
+
+        .view-tab:hover:not(.active) {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        .month-selector {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .month-tab {
+            background: var(--accent-bg);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .month-tab.active {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #3b82f6 100%);
+            color: var(--text-primary);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px rgba(74, 158, 255, 0.3);
+        }
+
+        .month-tab:hover:not(.active) {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+        }
+
+        .month-section {
+            display: none;
+        }
+
+        .month-section.active {
+            display: block;
+        }
+
+        .month-header {
+            background: linear-gradient(135deg, var(--accent-bg) 0%, var(--secondary-bg) 100%);
+            color: var(--text-primary);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .month-header h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+        }
+
+        .month-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .month-stat {
+            background: var(--accent-bg);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .month-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .month-stat h4 {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .month-stat p {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .day-section {
+            background: var(--secondary-bg);
+            margin-bottom: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .day-header {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #3b82f6 100%);
+            padding: 15px 20px;
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .day-stats {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .item-card {
+            background: var(--accent-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px;
+            transition: all 0.3s ease;
+            position: relative;
+            backdrop-filter: blur(10px);
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border-color: var(--accent-blue);
+        }
+
+        .item-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            flex-shrink: 0;
+        }
+
+        .item-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .item-detail {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .item-detail strong {
+            color: var(--text-primary);
+            display: block;
+            margin-top: 2px;
+            font-size: 13px;
+        }
+
+        .item-status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+
+        .item-actions button {
+            font-size: 11px;
+            padding: 6px 12px;
+            margin: 0;
+        }
+
+        .countdown-text {
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+        }
+
+        .countdown-liberado {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+        }
+
+        .countdown-tempo {
+            background: rgba(234, 179, 8, 0.2);
+            color: var(--accent-yellow);
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .card {
+            background: var(--accent-bg);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+        }
+
+        .card p {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-aguardando-venda {
+            background: rgba(107, 114, 128, 0.2);
+            color: #9ca3af;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(107, 114, 128, 0.3);
+        }
+
+        .status-pode-vender {
+            background: rgba(74, 158, 255, 0.2);
+            color: var(--accent-blue);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(74, 158, 255, 0.4);
+            animation: pulse-blue 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 8px rgba(74, 158, 255, 0.3); }
+            100% { box-shadow: 0 0 15px rgba(74, 158, 255, 0.5); }
+        }
+
+        .status-aguardando-dinheiro {
+            background: rgba(234, 179, 8, 0.2);
+            color: var(--accent-yellow);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(234, 179, 8, 0.4);
+        }
+
+        .status-dinheiro-liberado {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            animation: pulse-green 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 8px rgba(34, 197, 94, 0.3); }
+            100% { box-shadow: 0 0 15px rgba(34, 197, 94, 0.5); }
+        }
+
+        .platform-marketcsgo {
+            background: rgba(249, 115, 22, 0.2);
+            color: var(--accent-orange);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(249, 115, 22, 0.4);
+        }
+
+        .platform-csfloat {
+            background: rgba(74, 158, 255, 0.2);
+            color: var(--accent-blue);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(74, 158, 255, 0.4);
+        }
+
+        .platform-csgoempire {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--accent-purple);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, var(--accent-red) 0%, #dc2626 100%);
+            color: var(--text-primary);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            margin: 3% auto;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 700px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            color: var(--accent-blue);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .close {
+            color: var(--text-secondary);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            color: var(--accent-red);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-triple {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .datetime-input {
+            position: relative;
+        }
+
+        .datetime-input input[type="datetime-local"] {
+            appearance: none;
+            -webkit-appearance: none;
+            background: var(--accent-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .datetime-input input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            background-color: var(--accent-blue);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .lucro-positivo {
+            color: var(--accent-green);
+            font-weight: 700;
+        }
+
+        .lucro-negativo {
+            color: var(--accent-red);
+            font-weight: 700;
+        }
+
+        .urgente {
+            border: 2px solid var(--accent-red) !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3) !important;
+        }
+
+        .proximo {
+            border: 2px solid var(--accent-yellow) !important;
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.3) !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-blue);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6;
+        }
+
+        @media (max-width: 1200px) {
+            main {
+                padding: 0 15px;
+            }
+            
+            .header-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            header h1 {
+                font-size: 1.9rem;
+            }
+
+            .items-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding: 0 10px;
+            }
+            
+            section {
+                padding: 20px;
+            }
+            
+            header {
+                padding: 20px;
+            }
+
+            header h1 {
+                font-size: 1.6rem;
+            }
+
+            .cotacao, .horario-info, .user-info {
+                padding: 10px 18px;
+                font-size: 13px;
+            }
+
+            .cotacao {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .cotacao-buttons {
+                opacity: 1;
+            }
+
+            .month-tab, .view-tab {
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .form-triple {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .month-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .items-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding: 15px;
+            }
+
+            .day-header {
+                font-size: 14px;
+                padding: 12px 15px;
+            }
+
+            .item-card {
+                padding: 15px;
+                min-height: auto;
+            }
+
+            .registro-buttons {
+                justify-content: center;
+            }
+
+            .btn-registro-tipo {
+                flex: 1;
+                min-width: 120px;
+            }
+
+            .add-produto h2 {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.4rem;
+            }
+
+            .month-header h2 {
+                font-size: 1.4rem;
+            }
+
+            .item-actions {
+                gap: 4px;
+            }
+
+            .btn-success, .btn-warning, .btn-delete, .btn-edit {
+                font-size: 10px;
+                padding: 5px 10px;
+            }
+
+            .sync-status {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 11px;
+                min-width: 120px;
+            }
+
+            .view-selector {
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .view-tab {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div style="text-align: center; color: var(--accent-blue);">
+            <h2>🔄 Sincronizando dados...</h2>
+            <p id="loading-text">Conectando com GitHub</p>
+        </div>
+        <div id="loading-error" class="loading-error" style="display: none;">
+            <p>❌ Erro ao conectar. Usando modo offline.</p>
+            <button onclick="continueOffline()">📱 Continuar Offline</button>
+        </div>
+    </div>
+
+    <div id="sync-status" class="sync-status" style="display: none;" title="Clique para tentar sincronizar">
+        <span id="sync-text">💾 Sincronizado</span>
+    </div>
+
+    <header>
+        <h1>🔫 CS:GO SKIN TRADER</h1>
+        <div class="header-info">
+            <div class="cotacao">
+                <div class="cotacao-text">
+                    <span>💰 DÓLAR: R$ <span id="dolar-hoje">Carregando...</span></span>
+                </div>
+                <div class="cotacao-buttons">
+                    <button class="btn-cotacao btn-edit-cotacao" onclick="gerenciador.abrirModalEditarCotacao()">✏️ Editar</button>
+                    <button class="btn-cotacao" onclick="gerenciador.atualizarCotacao()">🔄 Atualizar</button>
+                </div>
+            </div>
+            <div class="horario-info">
+                <span>🕐 <span id="horario-atual">--:--</span> | ⏰ RESET: <span id="proximo-reset">--:--</span></span>
+            </div>
+            <div class="user-info">
+                <span>👤 IREVOLTAITZ</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="add-produto">
+            <h2>
+                ➕ REGISTRAR SKIN
+                <div class="registro-buttons">
+                    <button class="btn-registro-tipo btn-novo-item" onclick="gerenciador.selecionarTipoRegistro('novo')">🆕 Item Novo</button>
+                    <button class="btn-registro-tipo btn-item-antigo" onclick="gerenciador.selecionarTipoRegistro('antigo')">📅 Item Antigo</button>
+                    <button class="btn-registro-tipo btn-item-vendido" onclick="gerenciador.selecionarTipoRegistro('vendido')">💰 Já Vendido</button>
+                    <button class="btn-registro-tipo btn-item-finalizado" onclick="gerenciador.selecionarTipoRegistro('finalizado')">🏆 Finalizado</button>
+                </div>
+            </h2>
+
+            <form id="form-novo" class="smart-form active">
+                <div class="form-group">
+                    <label for="nome-novo">🔫 NOME DA SKIN:</label>
+                    <input type="text" id="nome-novo" required placeholder="Ex: AK-47 | Redline (Field-Tested)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="preco-compra-novo">💰 PREÇO DE COMPRA (R$):</label>
+                    <input type="number" id="preco-compra-novo" step="0.01" required placeholder="Ex: 150.00">
+                </div>
+                
+                <button type="submit">🚀 REGISTRAR SKIN NOVA</button>
+            </form>
+
+            <form id="form-antigo" class="smart-form">
+                <div class="form-group">
+                    <label for="nome-antigo">🔫 NOME DA SKIN:</label>
+                    <input type="text" id="nome-antigo" required placeholder="Ex: M4A4 | Asiimov (Battle-Scarred)">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="preco-compra-antigo">💰 PREÇO DE COMPRA (R$):</label>
+                        <input type="number" id="preco-compra-antigo" step="0.01" required placeholder="Ex: 200.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="dias-compra">📅 COMPROU HÁ QUANTOS DIAS:</label>
+                        <input type="number" id="dias-compra" min="0" max="365" required placeholder="Ex: 5">
+                        <div class="date-helper">
+                            💡 Digite quantos dias atrás você comprou este item
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit">📦 REGISTRAR ITEM ANTIGO</button>
+            </form>
+
+            <form id="form-vendido" class="smart-form">
+                <div class="form-group">
+                    <label for="nome-vendido">🔫 NOME DA SKIN:</label>
+                    <input type="text" id="nome-vendido" required placeholder="Ex: AWP | Dragon Lore (Field-Tested)">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="preco-compra-vendido">💰 PREÇO DE COMPRA (R$):</label>
+                        <input type="number" id="preco-compra-vendido" step="0.01" required placeholder="Ex: 500.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="preco-venda-vendido">💵 PREÇO DE VENDA (US$):</label>
+                        <input type="number" id="preco-venda-vendido" step="0.01" required placeholder="Ex: 120.50">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="plataforma-vendido">🏪 PLATAFORMA:</label>
+                        <select id="plataforma-vendido" required>
+                            <option value="">Selecione...</option>
+                            <option value="MarketCSGO">MarketCSGO</option>
+                            <option value="CSFloat">CSFloat</option>
+                            <option value="CsgoEmpire">CsgoEmpire</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dias-venda">📅 VENDEU HÁ QUANTOS DIAS:</label>
+                        <input type="number" id="dias-venda" min="0" max="365" required placeholder="Ex: 3">
+                        <div class="date-helper">
+                            💡 Digite quantos dias atrás você vendeu este item
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dias-compra-vendido">📅 TINHA COMPRADO HÁ QUANTOS DIAS:</label>
+                    <input type="number" id="dias-compra-vendido" min="0" max="365" required placeholder="Ex: 10">
+                    <div class="date-helper">
+                        💡 Quantos dias atrás da venda você tinha comprado (ex: vendeu há 3 dias, tinha comprado há 10 dias da venda = total 13 dias atrás)
+                    </div>
+                </div>
+                
+                <button type="submit">💰 REGISTRAR ITEM VENDIDO</button>
+            </form>
+
+            <form id="form-finalizado" class="smart-form">
+                <div class="form-group">
+                    <label for="nome-finalizado">🔫 NOME DA SKIN:</label>
+                    <input type="text" id="nome-finalizado" required placeholder="Ex: Karambit | Fade (Factory New)">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="preco-compra-finalizado">💰 PREÇO DE COMPRA (R$):</label>
+                        <input type="number" id="preco-compra-finalizado" step="0.01" required placeholder="Ex: 1200.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="preco-venda-finalizado">💵 PREÇO DE VENDA (US$):</label>
+                        <input type="number" id="preco-venda-finalizado" step="0.01" required placeholder="Ex: 280.00">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="plataforma-finalizado">🏪 PLATAFORMA:</label>
+                        <select id="plataforma-finalizado" required>
+                            <option value="">Selecione...</option>
+                            <option value="MarketCSGO">MarketCSGO</option>
+                            <option value="CSFloat">CSFloat</option>
+                            <option value="CsgoEmpire">CsgoEmpire</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cotacao-finalizado">💱 COTAÇÃO NA CONVERSÃO (R$):</label>
+                        <input type="number" id="cotacao-finalizado" step="0.01" required placeholder="Ex: 5.65">
+                        <div class="date-helper">
+                            💡 Cotação do dólar no dia que você converteu para reais
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dias-conversao">📅 CONVERTEU HÁ QUANTOS DIAS:</label>
+                        <input type="number" id="dias-conversao" min="0" max="365" required placeholder="Ex: 1">
+                        <div class="date-helper">
+                            💡 Digite quantos dias atrás você converteu para reais
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="dias-desde-compra">📅 TOTAL DE DIAS DESDE A COMPRA:</label>
+                        <input type="number" id="dias-desde-compra" min="0" max="365" required placeholder="Ex: 20">
+                        <div class="date-helper">
+                            💡 Quantos dias no total desde que comprou até hoje
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit">🏆 REGISTRAR ITEM FINALIZADO</button>
+            </form>
+        </section>
+
+        <section class="view-selector-section">
+            <div class="view-selector" id="view-selector">
+                <div class="view-tab active" onclick="gerenciador.selecionarView('historico')">📅 Histórico por Mês</div>
+                <div class="view-tab" onclick="gerenciador.selecionarView('vendas-proximas')">🚀 Próximas Vendas</div>
+                <div class="view-tab" onclick="gerenciador.selecionarView('saldos-proximos')">💰 Próximos Saldos</div>
+            </div>
+        </section>
+
+        <div id="view-historico" class="view-section active">
+            <section class="month-selector-section">
+                <div class="month-selector" id="month-selector">
+                </div>
+            </section>
+
+            <div id="months-container">
+            </div>
+        </div>
+
+        <div id="view-vendas-proximas" class="view-section">
+            <section>
+                <div class="month-header">
+                    <h2>🚀 PRÓXIMAS VENDAS DISPONÍVEIS</h2>
+                </div>
+                <div id="vendas-proximas-container">
+                </div>
+            </section>
+        </div>
+
+        <div id="view-saldos-proximos" class="view-section">
+            <section>
+                <div class="month-header">
+                    <h2>💰 PRÓXIMOS SALDOS LIBERADOS</h2>
+                </div>
+                <div id="saldos-proximos-container">
+                </div>
+            </section>
+        </div>
+
+        <section class="resumo">
+            <h2>📊 ESTATÍSTICAS GERAIS DO TRADER</h2>
+            <div class="cards">
+                <div class="card">
+                    <h3>💸 Total Investido</h3>
+                    <p id="total-investido">R$ 0,00</p>
+                </div>
+                <div class="card">
+                    <h3>⏳ Aguardando Venda</h3>
+                    <p id="aguardando-venda">R$ 0,00</p>
+                </div>
+                <div class="card">
+                    <h3>🔄 Aguardando Cash</h3>
+                    <p id="aguardando-dinheiro">R$ 0,00</p>
+                </div>
+                <div class="card lucro">
+                    <h3>💰 Cash Liberado</h3>
+                    <p id="dinheiro-liberado">R$ 0,00</p>
+                </div>
+                <div class="card lucro">
+                    <h3>🏆 Lucro Total</h3>
+                    <p id="lucro-total">R$ 0,00</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modais mantidos -->
+    <div id="vendaModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>💰 REGISTRAR VENDA</h2>
+            <form id="venda-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="preco-venda-modal">💵 Preço de Venda (US$):</label>
+                        <input type="number" id="preco-venda-modal" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="plataforma-modal">🏪 Plataforma:</label>
+                        <select id="plataforma-modal" required>
+                            <option value="">Selecione...</option>
+                            <option value="MarketCSGO">MarketCSGO</option>
+                            <option value="CSFloat">CSFloat</option>
+                            <option value="CsgoEmpire">CsgoEmpire</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit">✅ CONFIRMAR VENDA</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="conversaoModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>💱 CONVERTER PARA REAIS</h2>
+            <p>💰 Cotação do dólar hoje: R$ <span id="cotacao-conversao">0,00</span></p>
+            <p>💵 Valor em dólares: US$ <span id="valor-dolares">0,00</span></p>
+            <p>🏦 Valor convertido: R$ <span id="valor-convertido">0,00</span></p>
+            <button id="confirmar-conversao" class="btn-success">🚀 CONFIRMAR CONVERSÃO</button>
+        </div>
+    </div>
+
+    <div id="editarCotacaoModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>💱 EDITAR COTAÇÃO DO DÓLAR</h2>
+            <form id="editar-cotacao-form">
+                <div class="form-group">
+                    <label for="nova-cotacao">💰 Nova Cotação (R$):</label>
+                    <input type="number" id="nova-cotacao" step="0.01" required placeholder="Ex: 5.65">
+                    <div class="date-helper">
+                        💡 Digite a nova cotação do dólar em reais
+                    </div>
+                </div>
+                <div style="margin-top: 25px;">
+                    <button type="submit" class="btn-success">💾 SALVAR COTAÇÃO</button>
+                    <button type="button" onclick="document.getElementById('editarCotacaoModal').style.display='none'" style="background: var(--accent-red);">❌ CANCELAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>✏️ EDITAR ITEM</h2>
+            <form id="edit-form">
+                <div class="form-group">
+                    <label for="edit-nome">🔫 Nome da Skin:</label>
+                    <input type="text" id="edit-nome" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-preco-compra">💰 Preço de Compra (R$):</label>
+                    <input type="number" id="edit-preco-compra" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-status">📊 Status:</label>
+                    <select id="edit-status" required>
+                        <option value="aguardando-venda">⏳ Aguardando Venda</option>
+                        <option value="pode-vender">🚀 Pode Vender</option>
+                        <option value="aguardando-dinheiro">💰 Aguardando Dinheiro</option>
+                        <option value="dinheiro-liberado">💸 Dinheiro Liberado</option>
+                        <option value="finalizado">🏆 Finalizado</option>
+                    </select>
+                </div>
+
+                <div class="form-group datetime-input">
+                    <label for="edit-data-registro">📅 Data de Registro:</label>
+                    <input type="datetime-local" id="edit-data-registro" required>
+                </div>
+
+                <div id="venda-fields" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-preco-venda">💵 Preço de Venda (US$):</label>
+                            <input type="number" id="edit-preco-venda" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-plataforma">🏪 Plataforma:</label>
+                            <select id="edit-plataforma">
+                                <option value="">Selecione...</option>
+                                <option value="MarketCSGO">MarketCSGO</option>
+                                <option value="CSFloat">CSFloat</option>
+                                <option value="CsgoEmpire">CsgoEmpire</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group datetime-input">
+                        <label for="edit-data-venda">📅 Data da Venda:</label>
+                        <input type="datetime-local" id="edit-data-venda">
+                    </div>
+                </div>
+
+                <div id="conversao-fields" style="display: none;">
+                    <div class="form-group">
+                        <label for="edit-cotacao-conversao">💱 Cotação na Conversão (R$):</label>
+                        <input type="number" id="edit-cotacao-conversao" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="color: var(--accent-yellow);">⚠️ Observações:</label>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin: 5px 0;">
+                        • As datas de liberação são calculadas automaticamente (+7 dias às 04:00)<br>
+                        • Status "Finalizado" requer preço de venda e cotação<br>
+                        • Campos aparecem conforme o status selecionado
+                    </p>
+                </div>
+
+                <div style="margin-top: 25px;">
+                    <button type="submit" class="btn-success">💾 SALVAR ALTERAÇÕES</button>
+                    <button type="button" onclick="document.getElementById('editModal').style.display='none'" style="background: var(--accent-red);">❌ CANCELAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // FUNÇÃO GLOBAL PARA CONTINUAR OFFLINE
+        function continueOffline() {
+            document.getElementById('loading-screen').style.display = 'none';
+            // Inicializar apenas com dados locais
+            if (window.gerenciador) {
+                gerenciador.inicializarOffline();
+            }
+        }
+
+        class GerenciadorVendas {
+            constructor() {
+                this.githubConfig = {
+                    owner: 'iRevoltaITz',
+                    repo: 'csgo-trader-data',
+                    token: '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',
+                    fileName: 'dados-trader.json'
+                };
+                
+                                this.produtos = [];
+                this.dolarHoje = 5.50; // VALOR PADRÃO
+                this.produtoVendaAtual = null;
+                this.produtoConversaoAtual = null;
+                this.produtoEditandoAtual = null;
+                this.mesAtual = 'julho-2025';
+                this.mesesDisponiveis = [];
+                this.lastSha = null;
+                this.tipoRegistroAtual = 'novo';
+                this.viewAtual = 'historico';
+                
+                this.syncRetryCount = 0;
+                this.maxRetries = 3;
+                this.syncInProgress = false;
+                this.pendingSync = false;
+                this.isOffline = false;
+                
+                this.init();
+            }
+
+            utf8ToBase64(str) {
+                try {
+                    return btoa(unescape(encodeURIComponent(str)));
+                } catch (error) {
+                    console.error('Erro na codificação base64:', error);
+                    const cleanStr = str.replace(/[^\x00-\x7F]/g, "");
+                    return btoa(cleanStr);
+                }
+            }
+
+            base64ToUtf8(base64) {
+                try {
+                    return decodeURIComponent(escape(atob(base64)));
+                } catch (error) {
+                    console.error('Erro na decodificação base64:', error);
+                    return atob(base64);
+                }
+            }
+
+            async init() {
+                console.log('🚀 Iniciando aplicação...');
+                
+                // TIMEOUT PARA EVITAR TRAVA INFINITA
+                const timeoutId = setTimeout(() => {
+                    console.warn('⚠️ Timeout de inicialização - continuando offline');
+                    this.mostrarErroCarregamento();
+                }, 10000); // 10 segundos
+                
+                try {
+                    this.updateLoadingText('Carregando dados do GitHub...');
+                    await this.carregarDados();
+                    
+                    this.updateLoadingText('Buscando cotação do dólar...');
+                    await this.buscarCotacaoDolar();
+                    
+                    this.updateLoadingText('Verificando status dos produtos...');
+                    this.atualizarHorarios();
+                    this.verificarStatusProdutos();
+                    this.inicializarMeses();
+                    this.renderizarSeletorMeses();
+                    this.renderizarTodosProdutos();
+                    this.renderizarVendasProximas();
+                    this.renderizarSaldosProximos();
+                    this.atualizarResumos();
+                    this.setupEventListeners();
+                    this.iniciarContadorTempo();
+                    
+                    clearTimeout(timeoutId);
+                    document.getElementById('loading-screen').style.display = 'none';
+                    this.showSyncStatus('✅ Dados sincronizados', 'success');
+                    
+                } catch (error) {
+                    console.error('❌ Erro na inicialização:', error);
+                    clearTimeout(timeoutId);
+                    this.mostrarErroCarregamento();
+                }
+            }
+
+            mostrarErroCarregamento() {
+                document.getElementById('loading-error').style.display = 'block';
+                this.updateLoadingText('Erro ao conectar com GitHub');
+            }
+
+            inicializarOffline() {
+                console.log('📱 Iniciando modo offline...');
+                this.isOffline = true;
+                
+                // Carregar dados do localStorage
+                this.produtos = JSON.parse(localStorage.getItem('produtos_csgo_v16')) || [];
+                
+                // Inicializar interface
+                this.atualizarHorarios();
+                this.verificarStatusProdutos();
+                this.inicializarMeses();
+                this.renderizarSeletorMeses();
+                this.renderizarTodosProdutos();
+                this.renderizarVendasProximas();
+                this.renderizarSaldosProximos();
+                this.atualizarResumos();
+                this.setupEventListeners();
+                this.iniciarContadorTempo();
+                
+                // Atualizar cotação do dólar
+                this.buscarCotacaoDolar();
+                
+                this.showSyncStatus('📱 Modo offline ativo', 'offline', true);
+            }
+
+            updateLoadingText(text) {
+                const loadingText = document.getElementById('loading-text');
+                if (loadingText) loadingText.textContent = text;
+            }
+
+            showSyncStatus(text, type, persistent = false) {
+                const syncStatus = document.getElementById('sync-status');
+                const syncText = document.getElementById('sync-text');
+                
+                syncStatus.className = `sync-status sync-${type}`;
+                syncText.textContent = text;
+                syncStatus.style.display = 'block';
+                
+                if (type === 'success' && !persistent) {
+                    setTimeout(() => {
+                        syncStatus.style.display = 'none';
+                    }, 3000);
+                } else if (type === 'error' || type === 'offline') {
+                    syncStatus.onclick = () => this.tentarSincronizar();
+                }
+            }
+
+            async tentarSincronizar() {
+                if (this.syncInProgress) return;
+                
+                this.syncRetryCount = 0;
+                this.showSyncStatus('🔄 Tentando sincronizar...', 'loading');
+                await this.salvarDados(true);
+            }
+
+            async carregarDados() {
+                if (this.isOffline) {
+                    this.produtos = JSON.parse(localStorage.getItem('produtos_csgo_v16')) || [];
+                    return;
+                }
+
+                try {
+                    const url = `https://api.github.com/repos/${this.githubConfig.owner}/${this.githubConfig.repo}/contents/${this.githubConfig.fileName}`;
+                    
+                    const response = await fetch(url, {
+                        headers: {
+                            'Authorization': `token ${this.githubConfig.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        },
+                        timeout: 8000 // 8 segundos timeout
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.lastSha = data.sha;
+                        
+                        const content = JSON.parse(this.base64ToUtf8(data.content));
+                        this.produtos = content.produtos || [];
+                        
+                        // Carregar cotação salva se existir
+                        if (content.cotacaoManual) {
+                            this.dolarHoje = content.cotacaoManual;
+                        }
+                        
+                        console.log('✅ Dados carregados do GitHub!', this.produtos.length, 'produtos');
+                        localStorage.setItem('produtos_csgo_v16', JSON.stringify(this.produtos));
+                        
+                    } else if (response.status === 404) {
+                        // Arquivo não existe, criar novo
+                        this.produtos = JSON.parse(localStorage.getItem('produtos_csgo_v16')) || [];
+                        if (this.produtos.length > 0) {
+                            console.log('📦 Usando dados do localStorage');
+                        }
+                    } else {
+                        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao carregar dados do GitHub:', error);
+                    
+                    // Carregar dados locais como fallback
+                    this.produtos = JSON.parse(localStorage.getItem('produtos_csgo_v16')) || [];
+                    
+                    if (!this.isOffline) {
+                        this.showSyncStatus('⚠️ Modo offline - dados locais carregados', 'offline', true);
+                    }
+                }
+            }
+
+            async salvarDados(forceSync = false) {
+                // Sempre salvar no localStorage
+                localStorage.setItem('produtos_csgo_v16', JSON.stringify(this.produtos));
+                
+                // Se estiver offline, não tentar sincronizar
+                if (this.isOffline && !forceSync) {
+                    return;
+                }
+                
+                if (this.syncInProgress && !forceSync) {
+                    this.pendingSync = true;
+                    return;
+                }
+                
+                this.syncInProgress = true;
+                
+                try {
+                    this.showSyncStatus('🔄 Salvando...', 'loading');
+                    
+                    const dadosParaSalvar = {
+                        produtos: this.produtos,
+                        cotacaoManual: this.dolarHoje,
+                        ultimaAtualizacao: new Date().toISOString(),
+                        versao: 'v16-loading-corrigido',
+                        usuario: 'iRevoltaITz',
+                        totalItens: this.produtos.length,
+                        timestamp: Date.now()
+                    };
+
+                    const jsonString = JSON.stringify(dadosParaSalvar, null, 2);
+                    
+                    const url = `https://api.github.com/repos/${this.githubConfig.owner}/${this.githubConfig.repo}/contents/${this.githubConfig.fileName}`;
+                    
+                    const body = {
+                        message: `Auto-save - ${new Date().toLocaleString('pt-BR')} - ${this.produtos.length} itens`,
+                        content: this.utf8ToBase64(jsonString),
+                        sha: this.lastSha
+                    };
+
+                    const response = await fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${this.githubConfig.token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(body),
+                        timeout: 10000
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.lastSha = data.content.sha;
+                        this.syncRetryCount = 0;
+                        this.isOffline = false;
+                        console.log('💾 Dados salvos no GitHub com sucesso!');
+                        this.showSyncStatus('✅ Sincronizado', 'success');
+                        
+                        if (this.pendingSync) {
+                            this.pendingSync = false;
+                            setTimeout(() => this.salvarDados(), 1000);
+                        }
+                        
+                    } else {
+                        const errorData = await response.text();
+                        throw new Error(`Erro ${response.status}: ${errorData}`);
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao salvar no GitHub:', error);
+                    this.syncRetryCount++;
+                    
+                    if (this.syncRetryCount < this.maxRetries) {
+                        const delay = this.syncRetryCount * 2000;
+                        this.showSyncStatus(`🔄 Tentativa ${this.syncRetryCount}/${this.maxRetries} em ${delay/1000}s...`, 'loading');
+                        
+                        setTimeout(() => {
+                            this.salvarDados(true);
+                        }, delay);
+                        
+                    } else {
+                        this.showSyncStatus('❌ Erro de sincronização - clique para tentar', 'error', true);
+                        this.syncRetryCount = 0;
+                        this.isOffline = true;
+                    }
+                } finally {
+                    this.syncInProgress = false;
+                }
+            }
+
+            // FUNÇÕES PARA COTAÇÃO
+            abrirModalEditarCotacao() {
+                document.getElementById('nova-cotacao').value = this.dolarHoje.toFixed(2);
+                document.getElementById('editarCotacaoModal').style.display = 'block';
+            }
+
+            confirmarEdicaoCotacao() {
+                const novaCotacao = parseFloat(document.getElementById('nova-cotacao').value);
+                
+                if (novaCotacao && novaCotacao > 0) {
+                    this.dolarHoje = novaCotacao;
+                    
+                    // Atualizar display
+                    const dolarElement = document.getElementById('dolar-hoje');
+                    if (dolarElement) {
+                        dolarElement.textContent = this.dolarHoje.toFixed(2) + ' (manual)';
+                    }
+                    
+                    // Salvar e atualizar tudo
+                    this.salvarDados();
+                    this.atualizarResumos();
+                    this.renderizarVendasProximas();
+                    this.renderizarSaldosProximos();
+                    
+                    document.getElementById('editarCotacaoModal').style.display = 'none';
+                    this.showSyncStatus('💱 Cotação atualizada manualmente!', 'success');
+                }
+            }
+
+            async atualizarCotacao() {
+                this.showSyncStatus('🔄 Atualizando cotação...', 'loading');
+                await this.buscarCotacaoDolar();
+                this.atualizarResumos();
+                this.renderizarVendasProximas();
+                this.renderizarSaldosProximos();
+                this.salvarDados();
+            }
+
+            // SISTEMA DE VIEWS
+            selecionarView(view) {
+                this.viewAtual = view;
+                
+                document.querySelectorAll('.view-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                
+                document.querySelectorAll('.view-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(`view-${view}`).classList.add('active');
+            }
+
+            selecionarTipoRegistro(tipo) {
+                this.tipoRegistroAtual = tipo;
+                
+                document.querySelectorAll('.smart-form').forEach(form => {
+                    form.classList.remove('active');
+                });
+                
+                document.getElementById(`form-${tipo}`).classList.add('active');
+                
+                document.querySelectorAll('.btn-registro-tipo').forEach(btn => {
+                    btn.style.opacity = '0.6';
+                    btn.style.transform = 'scale(0.95)';
+                });
+                
+                event.target.style.opacity = '1';
+                event.target.style.transform = 'scale(1)';
+            }
+
+            calcularDataPassado(diasAtras) {
+                const agora = new Date();
+                const dataPassado = new Date(agora.getTime() - (diasAtras * 24 * 60 * 60 * 1000));
+                return dataPassado;
+            }
+
+            adicionarProdutoNovo() {
+                const nome = document.getElementById('nome-novo').value;
+                const precoCompra = parseFloat(document.getElementById('preco-compra-novo').value);
+                
+                const agora = new Date();
+                const dataLiberacaoVenda = this.calcularDataLiberacao(agora, 7);
+                
+                const produto = {
+                    id: Date.now() + Math.random(),
+                    nome,
+                    precoCompra,
+                    precoVenda: null,
+                    plataforma: null,
+                    status: 'aguardando-venda',
+                    dataRegistro: agora.toISOString(),
+                    dataLiberacaoVenda: dataLiberacaoVenda.toISOString(),
+                    dataVenda: null,
+                    dataLiberacaoDinheiro: null,
+                    cotacaoConversao: null,
+                    valorFinalReal: null
+                };
+
+                this.produtos.push(produto);
+                this.processarNovoItem(produto);
+                this.limparFormulario('form-novo');
+            }
+
+            adicionarProdutoAntigo() {
+                const nome = document.getElementById('nome-antigo').value;
+                const precoCompra = parseFloat(document.getElementById('preco-compra-antigo').value);
+                const diasAtras = parseInt(document.getElementById('dias-compra').value);
+                
+                const dataRegistro = this.calcularDataPassado(diasAtras);
+                const dataLiberacaoVenda = this.calcularDataLiberacao(dataRegistro, 7);
+                
+                const agora = new Date();
+                const status = agora >= dataLiberacaoVenda ? 'pode-vender' : 'aguardando-venda';
+                
+                const produto = {
+                    id: Date.now() + Math.random(),
+                    nome,
+                    precoCompra,
+                    precoVenda: null,
+                    plataforma: null,
+                    status: status,
+                    dataRegistro: dataRegistro.toISOString(),
+                    dataLiberacaoVenda: dataLiberacaoVenda.toISOString(),
+                    dataVenda: null,
+                    dataLiberacaoDinheiro: null,
+                    cotacaoConversao: null,
+                    valorFinalReal: null
+                };
+
+                this.produtos.push(produto);
+                this.processarNovoItem(produto);
+                this.limparFormulario('form-antigo');
+                
+                if (status === 'pode-vender') {
+                    this.showSyncStatus('🎉 Item já liberado para venda!', 'success');
+                }
+            }
+
+            adicionarProdutoVendido() {
+                const nome = document.getElementById('nome-vendido').value;
+                const precoCompra = parseFloat(document.getElementById('preco-compra-vendido').value);
+                const precoVenda = parseFloat(document.getElementById('preco-venda-vendido').value);
+                const plataforma = document.getElementById('plataforma-vendido').value;
+                const diasVenda = parseInt(document.getElementById('dias-venda').value);
+                const diasCompraAntes = parseInt(document.getElementById('dias-compra-vendido').value);
+                
+                const dataVenda = this.calcularDataPassado(diasVenda);
+                const dataRegistro = this.calcularDataPassado(diasVenda + diasCompraAntes);
+                const dataLiberacaoVenda = this.calcularDataLiberacao(dataRegistro, 7);
+                const dataLiberacaoDinheiro = this.calcularDataLiberacao(dataVenda, 7);
+                
+                const agora = new Date();
+                const status = agora >= dataLiberacaoDinheiro ? 'dinheiro-liberado' : 'aguardando-dinheiro';
+                
+                const produto = {
+                    id: Date.now() + Math.random(),
+                    nome,
+                    precoCompra,
+                    precoVenda,
+                    plataforma,
+                    status: status,
+                    dataRegistro: dataRegistro.toISOString(),
+                    dataLiberacaoVenda: dataLiberacaoVenda.toISOString(),
+                    dataVenda: dataVenda.toISOString(),
+                    dataLiberacaoDinheiro: dataLiberacaoDinheiro.toISOString(),
+                    cotacaoConversao: null,
+                    valorFinalReal: null
+                };
+
+                this.produtos.push(produto);
+                this.processarNovoItem(produto);
+                this.limparFormulario('form-vendido');
+                
+                if (status === 'dinheiro-liberado') {
+                    this.showSyncStatus('💰 Item já liberado para conversão!', 'success');
+                }
+            }
+
+            adicionarProdutoFinalizado() {
+                const nome = document.getElementById('nome-finalizado').value;
+                const precoCompra = parseFloat(document.getElementById('preco-compra-finalizado').value);
+                const precoVenda = parseFloat(document.getElementById('preco-venda-finalizado').value);
+                const plataforma = document.getElementById('plataforma-finalizado').value;
+                const cotacao = parseFloat(document.getElementById('cotacao-finalizado').value);
+                const diasConversao = parseInt(document.getElementById('dias-conversao').value);
+                const diasTotalCompra = parseInt(document.getElementById('dias-desde-compra').value);
+                
+                const dataConversao = this.calcularDataPassado(diasConversao);
+                const dataRegistro = this.calcularDataPassado(diasTotalCompra);
+                const dataLiberacaoVenda = this.calcularDataLiberacao(dataRegistro, 7);
+                
+                const dataVenda = new Date(dataConversao.getTime() - (7 * 24 * 60 * 60 * 1000));
+                const dataLiberacaoDinheiro = this.calcularDataLiberacao(dataVenda, 7);
+                
+                const produto = {
+                    id: Date.now() + Math.random(),
+                    nome,
+                    precoCompra,
+                    precoVenda,
+                    plataforma,
+                    status: 'finalizado',
+                    dataRegistro: dataRegistro.toISOString(),
+                    dataLiberacaoVenda: dataLiberacaoVenda.toISOString(),
+                    dataVenda: dataVenda.toISOString(),
+                    dataLiberacaoDinheiro: dataLiberacaoDinheiro.toISOString(),
+                    cotacaoConversao: cotacao,
+                    valorFinalReal: precoVenda * cotacao,
+                    dataConversao: dataConversao.toISOString()
+                };
+
+                this.produtos.push(produto);
+                this.processarNovoItem(produto);
+                this.limparFormulario('form-finalizado');
+                
+                const lucro = produto.valorFinalReal - produto.precoCompra;
+                const lucroMsg = lucro >= 0 ? `💚 Lucro: R$ ${lucro.toFixed(2)}` : `💔 Prejuízo: R$ ${Math.abs(lucro).toFixed(2)}`;
+                this.showSyncStatus(`🏆 Trade finalizado! ${lucroMsg}`, lucro >= 0 ? 'success' : 'error');
+            }
+
+            processarNovoItem(produto) {
+                this.salvarDados();
+                this.verificarStatusProdutos();
+                
+                const novoMes = this.obterChaveMes(produto.dataRegistro);
+                if (!this.mesesDisponiveis.includes(novoMes)) {
+                    this.inicializarMeses();
+                    this.renderizarSeletorMeses();
+                }
+                
+                this.renderizarTodosProdutos();
+                this.renderizarVendasProximas();
+                this.renderizarSaldosProximos();
+                this.atualizarResumos();
+                this.selecionarMes(novoMes);
+            }
+
+            limparFormulario(formId) {
+                document.getElementById(formId).reset();
+            }
+
+            renderizarVendasProximas() {
+                const container = document.getElementById('vendas-proximas-container');
+                
+                const itensParaVenda = this.produtos.filter(p => 
+                    p.status === 'aguardando-venda' || p.status === 'pode-vender'
+                );
+
+                if (itensParaVenda.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; color: var(--text-secondary); padding: 40px;">
+                            🚫 Nenhum item aguardando liberação para venda
+                        </div>
+                    `;
+                    return;
+                }
+
+                itensParaVenda.sort((a, b) => {
+                    const dataA = new Date(a.dataLiberacaoVenda);
+                    const dataB = new Date(b.dataLiberacaoVenda);
+                    return dataA - dataB;
+                });
+
+                const agora = new Date();
+                const items = itensParaVenda.map((produto) => {
+                    const dataLiberacao = new Date(produto.dataLiberacaoVenda);
+                    const diferenca = dataLiberacao.getTime() - agora.getTime();
+                    const diasRestantes = Math.ceil(diferenca / (1000 * 60 * 60 * 24));
+                    
+                    let urgencia = '';
+                    if (produto.status === 'pode-vender') {
+                        urgencia = 'urgente';
+                    } else if (diasRestantes <= 1) {
+                        urgencia = 'proximo';
+                    }
+
+                    return this.criarCardItem(produto, urgencia);
+                }).join('');
+
+                container.innerHTML = `<div class="items-grid">${items}</div>`;
+            }
+
+            renderizarSaldosProximos() {
+                const container = document.getElementById('saldos-proximos-container');
+                
+                const itensParaSaldo = this.produtos.filter(p => 
+                    p.status === 'aguardando-dinheiro' || p.status === 'dinheiro-liberado'
+                );
+
+                if (itensParaSaldo.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; color: var(--text-secondary); padding: 40px;">
+                            🚫 Nenhum item aguardando liberação de saldo
+                        </div>
+                    `;
+                    return;
+                }
+
+                itensParaSaldo.sort((a, b) => {
+                    const dataA = new Date(a.dataLiberacaoDinheiro);
+                    const dataB = new Date(b.dataLiberacaoDinheiro);
+                    return dataA - dataB;
+                });
+
+                const agora = new Date();
+                const items = itensParaSaldo.map((produto) => {
+                    const dataLiberacao = new Date(produto.dataLiberacaoDinheiro);
+                    const diferenca = dataLiberacao.getTime() - agora.getTime();
+                    const diasRestantes = Math.ceil(diferenca / (1000 * 60 * 60 * 24));
+                    
+                    let urgencia = '';
+                    if (produto.status === 'dinheiro-liberado') {
+                        urgencia = 'urgente';
+                    } else if (diasRestantes <= 1) {
+                        urgencia = 'proximo';
+                    }
+
+                    return this.criarCardItem(produto, urgencia);
+                }).join('');
+
+                container.innerHTML = `<div class="items-grid">${items}</div>`;
+            }
+
+            criarCardItem(produto, urgencia = '') {
+                let statusText = '';
+                let tempoRestante = '';
+                let acoes = '';
+                let vendaInfo = '';
+                let countdownClass = 'countdown-tempo';
+                
+                switch(produto.status) {
+                    case 'aguardando-venda':
+                        statusText = '<span class="status-aguardando-venda">⏳ Cooldown</span>';
+                        tempoRestante = this.calcularTempoRestante(produto.dataLiberacaoVenda);
+                        acoes = `
+                            <button class="btn-edit" onclick="gerenciador.abrirModalEdicao(${produto.id})">✏️ Editar</button>
+                            <button class="btn-delete" onclick="gerenciador.removerProduto(${produto.id})">🗑️ Remover</button>
+                        `;
+                        break;
+                        
+                    case 'pode-vender':
+                        statusText = '<span class="status-pode-vender">🚀 Disponível</span>';
+                        tempoRestante = 'LIBERADO PARA VENDA';
+                        countdownClass = 'countdown-liberado';
+                        acoes = `
+                            <button class="btn-success" onclick="gerenciador.abrirModalVenda(${produto.id})">💰 Vender</button>
+                            <button class="btn-edit" onclick="gerenciador.abrirModalEdicao(${produto.id})">✏️ Editar</button>
+                            <button class="btn-delete" onclick="gerenciador.removerProduto(${produto.id})">🗑️ Remover</button>
+                        `;
+                        break;
+                        
+                    case 'aguardando-dinheiro':
+                        statusText = '<span class="status-aguardando-dinheiro">💰 Processando</span>';
+                        tempoRestante = this.calcularTempoRestante(produto.dataLiberacaoDinheiro);
+                        vendaInfo = `
+                            <div class="item-detail">💵 Venda: <strong>US$ ${produto.precoVenda.toFixed(2)}</strong></div>
+                            <div class="item-detail">🏪 ${produto.plataforma ? `<span class="platform-${produto.plataforma.toLowerCase()}">${produto.plataforma}</span>` : 'N/A'}</div>
+                        `;
+                        acoes = `
+                            <button class="btn-edit" onclick="gerenciador.abrirModalEdicao(${produto.id})">✏️ Editar</button>
+                            <button class="btn-delete" onclick="gerenciador.removerProduto(${produto.id})">🗑️ Remover</button>
+                        `;
+                        break;
+                        
+                    case 'dinheiro-liberado':
+                        statusText = '<span class="status-dinheiro-liberado">💸 Cash Ready</span>';
+                        tempoRestante = 'DINHEIRO LIBERADO';
+                        countdownClass = 'countdown-liberado';
+                        vendaInfo = `
+                            <div class="item-detail">💵 Venda: <strong>US$ ${produto.precoVenda.toFixed(2)}</strong></div>
+                            <div class="item-detail">🏪 ${produto.plataforma ? `<span class="platform-${produto.plataforma.toLowerCase()}">${produto.plataforma}</span>` : 'N/A'}</div>
+                        `;
+                        acoes = `
+                            <button class="btn-warning" onclick="gerenciador.abrirModalConversao(${produto.id})">💱 Converter</button>
+                            <button class="btn-edit" onclick="gerenciador.abrirModalEdicao(${produto.id})">✏️ Editar</button>
+                            <button class="btn-delete" onclick="gerenciador.removerProduto(${produto.id})">🗑️ Remover</button>
+                        `;
+                        break;
+                }
+
+                return `
+                    <div class="item-card ${urgencia}">
+                        <div class="item-name">${produto.nome}</div>
+                        
+                        <div class="item-status-row">
+                            ${statusText}
+                        </div>
+                        
+                        <div class="countdown-text ${countdownClass}">
+                            ${tempoRestante}
+                        </div>
+                        
+                        <div class="item-info">
+                            <div class="item-detail">💰 Compra: <strong>R$ ${produto.precoCompra.toFixed(2)}</strong></div>
+                            <div class="item-detail">📅 ${new Date(produto.dataRegistro).toLocaleDateString('pt-BR')}</div>
+                            ${vendaInfo}
+                        </div>
+                        
+                        <div class="item-actions">
+                            ${acoes}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Demais funções mantidas iguais (abrirModalEdicao, calcularDataLiberacao, etc...)
+            abrirModalEdicao(produtoId) {
+                this.produtoEditandoAtual = this.produtos.find(p => p.id === produtoId);
+                
+                if (!this.produtoEditandoAtual) return;
+
+                document.getElementById('edit-nome').value = this.produtoEditandoAtual.nome;
+                document.getElementById('edit-preco-compra').value = this.produtoEditandoAtual.precoCompra;
+                document.getElementById('edit-status').value = this.produtoEditandoAtual.status;
+
+                const dataRegistro = new Date(this.produtoEditandoAtual.dataRegistro);
+                document.getElementById('edit-data-registro').value = this.formatarDataParaInput(dataRegistro);
+
+                if (this.produtoEditandoAtual.precoVenda) {
+                    document.getElementById('edit-preco-venda').value = this.produtoEditandoAtual.precoVenda;
+                }
+                if (this.produtoEditandoAtual.plataforma) {
+                    document.getElementById('edit-plataforma').value = this.produtoEditandoAtual.plataforma;
+                }
+                if (this.produtoEditandoAtual.dataVenda) {
+                    const dataVenda = new Date(this.produtoEditandoAtual.dataVenda);
+                    document.getElementById('edit-data-venda').value = this.formatarDataParaInput(dataVenda);
+                }
+                if (this.produtoEditandoAtual.cotacaoConversao) {
+                    document.getElementById('edit-cotacao-conversao').value = this.produtoEditandoAtual.cotacaoConversao;
+                }
+
+                this.atualizarCamposEdicao(this.produtoEditandoAtual.status);
+                document.getElementById('editModal').style.display = 'block';
+            }
+
+            formatarDataParaInput(data) {
+                const ano = data.getFullYear();
+                const mes = String(data.getMonth() + 1).padStart(2, '0');
+                const dia = String(data.getDate()).padStart(2, '0');
+                const horas = String(data.getHours()).padStart(2, '0');
+                const minutos = String(data.getMinutes()).padStart(2, '0');
+                return `${ano}-${mes}-${dia}T${horas}:${minutos}`;
+            }
+
+            atualizarCamposEdicao(status) {
+                const vendaFields = document.getElementById('venda-fields');
+                const conversaoFields = document.getElementById('conversao-fields');
+
+                vendaFields.style.display = 'none';
+                conversaoFields.style.display = 'none';
+
+                if (['aguardando-dinheiro', 'dinheiro-liberado', 'finalizado'].includes(status)) {
+                    vendaFields.style.display = 'block';
+                }
+
+                if (status === 'finalizado') {
+                    conversaoFields.style.display = 'block';
+                }
+            }
+
+            confirmarEdicao() {
+                if (!this.produtoEditandoAtual) return;
+
+                this.produtoEditandoAtual.nome = document.getElementById('edit-nome').value;
+                this.produtoEditandoAtual.precoCompra = parseFloat(document.getElementById('edit-preco-compra').value);
+                this.produtoEditandoAtual.status = document.getElementById('edit-status').value;
+                
+                const novaDataRegistro = new Date(document.getElementById('edit-data-registro').value);
+                this.produtoEditandoAtual.dataRegistro = novaDataRegistro.toISOString();
+
+                const dataLiberacaoVenda = this.calcularDataLiberacao(novaDataRegistro, 7);
+                this.produtoEditandoAtual.dataLiberacaoVenda = dataLiberacaoVenda.toISOString();
+
+                const status = this.produtoEditandoAtual.status;
+                
+                if (['aguardando-dinheiro', 'dinheiro-liberado', 'finalizado'].includes(status)) {
+                    const precoVenda = document.getElementById('edit-preco-venda').value;
+                    const plataforma = document.getElementById('edit-plataforma').value;
+                    const dataVenda = document.getElementById('edit-data-venda').value;
+
+                    if (precoVenda) {
+                        this.produtoEditandoAtual.precoVenda = parseFloat(precoVenda);
+                    }
+                    if (plataforma) {
+                        this.produtoEditandoAtual.plataforma = plataforma;
+                    }
+                    if (dataVenda) {
+                        const dataVendaObj = new Date(dataVenda);
+                        this.produtoEditandoAtual.dataVenda = dataVendaObj.toISOString();
+                        
+                        const dataLiberacaoDinheiro = this.calcularDataLiberacao(dataVendaObj, 7);
+                        this.produtoEditandoAtual.dataLiberacaoDinheiro = dataLiberacaoDinheiro.toISOString();
+                    }
+                }
+
+                if (status === 'finalizado') {
+                    const cotacaoConversao = document.getElementById('edit-cotacao-conversao').value;
+                    if (cotacaoConversao && this.produtoEditandoAtual.precoVenda) {
+                        this.produtoEditandoAtual.cotacaoConversao = parseFloat(cotacaoConversao);
+                        this.produtoEditandoAtual.valorFinalReal = this.produtoEditandoAtual.precoVenda * this.produtoEditandoAtual.cotacaoConversao;
+                    }
+                }
+
+                if (!['aguardando-dinheiro', 'dinheiro-liberado', 'finalizado'].includes(status)) {
+                    this.produtoEditandoAtual.precoVenda = null;
+                    this.produtoEditandoAtual.plataforma = null;
+                    this.produtoEditandoAtual.dataVenda = null;
+                    this.produtoEditandoAtual.dataLiberacaoDinheiro = null;
+                }
+
+                if (status !== 'finalizado') {
+                    this.produtoEditandoAtual.cotacaoConversao = null;
+                    this.produtoEditandoAtual.valorFinalReal = null;
+                }
+
+                this.salvarDados();
+                this.verificarStatusProdutos();
+                this.inicializarMeses();
+                this.renderizarSeletorMeses();
+                this.renderizarTodosProdutos();
+                this.renderizarVendasProximas();
+                this.renderizarSaldosProximos();
+                this.atualizarResumos();
+
+                document.getElementById('editModal').style.display = 'none';
+                this.showSyncStatus('✅ Item editado com sucesso!', 'success');
+            }
+
+            obterProximoReset() {
+                const agora = new Date();
+                const proximoReset = new Date(agora);
+                
+                if (agora.getHours() >= 4) {
+                    proximoReset.setDate(agora.getDate() + 1);
+                }
+                
+                proximoReset.setHours(4, 0, 0, 0);
+                return proximoReset;
+            }
+
+            calcularDataLiberacao(dataInicial, diasParaAdicionar) {
+                const dataBase = new Date(dataInicial);
+                
+                let proximoReset;
+                if (dataBase.getHours() < 4) {
+                    proximoReset = new Date(dataBase);
+                    proximoReset.setHours(4, 0, 0, 0);
+                } else {
+                    proximoReset = new Date(dataBase);
+                    proximoReset.setDate(dataBase.getDate() + 1);
+                    proximoReset.setHours(4, 0, 0, 0);
+                }
+                
+                const dataLiberacao = new Date(proximoReset);
+                dataLiberacao.setDate(proximoReset.getDate() + diasParaAdicionar);
+                
+                return dataLiberacao;
+            }
+
+            obterChaveMes(data) {
+                const meses = [
+                    'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+                    'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
+                ];
+                const dataObj = new Date(data);
+                const mes = meses[dataObj.getMonth()];
+                const ano = dataObj.getFullYear();
+                return `${mes}-${ano}`;
+            }
+
+            obterNomeMes(chaveMes) {
+                const [mes, ano] = chaveMes.split('-');
+                return `${mes.charAt(0).toUpperCase() + mes.slice(1)} ${ano}`;
+            }
+
+            inicializarMeses() {
+                const mesesSet = new Set();
+                
+                mesesSet.add('julho-2025');
+                
+                this.produtos.forEach(produto => {
+                    if (produto.status === 'finalizado') {
+                        const chaveMes = this.obterChaveMes(produto.dataRegistro);
+                        mesesSet.add(chaveMes);
+                    }
+                });
+                
+                this.mesesDisponiveis = Array.from(mesesSet).sort((a, b) => {
+                    const [mesA, anoA] = a.split('-');
+                    const [mesB, anoB] = b.split('-');
+                    const mesesOrder = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+                    
+                    if (anoA !== anoB) {
+                        return parseInt(anoA) - parseInt(anoB);
+                    }
+                    return mesesOrder.indexOf(mesA) - mesesOrder.indexOf(mesB);
+                });
+            }
+
+            renderizarSeletorMeses() {
+                const selectorContainer = document.getElementById('month-selector');
+                selectorContainer.innerHTML = '';
+                
+                this.mesesDisponiveis.forEach(chaveMes => {
+                    const tab = document.createElement('div');
+                    tab.className = `month-tab ${chaveMes === this.mesAtual ? 'active' : ''}`;
+                    tab.textContent = this.obterNomeMes(chaveMes);
+                    tab.onclick = () => this.selecionarMes(chaveMes);
+                    selectorContainer.appendChild(tab);
+                });
+            }
+
+            selecionarMes(chaveMes) {
+                this.mesAtual = chaveMes;
+                
+                document.querySelectorAll('.month-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                
+                document.querySelectorAll('.month-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(`section-${chaveMes}`).classList.add('active');
+            }
+
+            agruparPorDia(produtos) {
+                const grupos = {};
+                
+                produtos.forEach(produto => {
+                    const data = new Date(produto.dataRegistro);
+                    const chave = data.toDateString();
+                    
+                    if (!grupos[chave]) {
+                        grupos[chave] = {
+                            data: data,
+                            produtos: [],
+                            stats: {
+                                total: 0,
+                                investido: 0,
+                                aguardandoVenda: 0,
+                                vendidos: 0,
+                                finalizados: 0
+                            }
+                        };
+                    }
+                    
+                    grupos[chave].produtos.push(produto);
+                });
+
+                Object.values(grupos).forEach(grupo => {
+                    grupo.stats.total = grupo.produtos.length;
+                    grupo.stats.investido = grupo.produtos.reduce((total, p) => total + p.precoCompra, 0);
+                    grupo.stats.aguardandoVenda = grupo.produtos.filter(p => 
+                        p.status === 'aguardando-venda' || p.status === 'pode-vender'
+                    ).length;
+                    grupo.stats.vendidos = grupo.produtos.filter(p => 
+                        p.status === 'aguardando-dinheiro' || p.status === 'dinheiro-liberado'
+                    ).length;
+                    grupo.stats.finalizados = grupo.produtos.filter(p => 
+                        p.status === 'finalizado'
+                    ).length;
+                });
+
+                return grupos;
+            }
+
+            renderizarTodosProdutos() {
+                const container = document.getElementById('months-container');
+                container.innerHTML = '';
+                
+                this.mesesDisponiveis.forEach(chaveMes => {
+                    const produtosMes = this.produtos.filter(produto => 
+                        this.obterChaveMes(produto.dataRegistro) === chaveMes && produto.status === 'finalizado'
+                    );
+                    
+                    const section = document.createElement('section');
+                    section.className = `month-section ${chaveMes === this.mesAtual ? 'active' : ''}`;
+                    section.id = `section-${chaveMes}`;
+                    
+                    const stats = this.calcularEstatisticasMes(produtosMes);
+                    
+                    section.innerHTML = `
+                        <div class="month-header">
+                            <h2>📅 ${this.obterNomeMes(chaveMes).toUpperCase()}</h2>
+                        </div>
+                        
+                        <div class="month-stats">
+                            <div class="month-stat">
+                                <h4>🏆 Trades Finalizados</h4>
+                                <p>${stats.totalItens}</p>
+                            </div>
+                            <div class="month-stat">
+                                <h4>💸 Total Investido</h4>
+                                <p>R$ ${stats.investido.toFixed(2)}</p>
+                            </div>
+                            <div class="month-stat">
+                                <h4>💰 Total Recebido</h4>
+                                <p>R$ ${stats.totalRecebido.toFixed(2)}</p>
+                            </div>
+                            <div class="month-stat">
+                                <h4>📊 Lucro Mensal</h4>
+                                <p class="${stats.lucro >= 0 ? 'lucro-positivo' : 'lucro-negativo'}">R$ ${stats.lucro.toFixed(2)}</p>
+                            </div>
+                            <div class="month-stat">
+                                <h4>📈 Margem de Lucro</h4>
+                                <p class="${stats.margem >= 0 ? 'lucro-positivo' : 'lucro-negativo'}">${stats.margem.toFixed(1)}%</p>
+                            </div>
+                            <div class="month-stat">
+                                <h4>💱 Cotação Média</h4>
+                                <p>R$ ${stats.cotacaoMedia.toFixed(2)}</p>
+                            </div>
+                        </div>
+                        
+                        <div id="days-container-${chaveMes}">
+                        </div>
+                    `;
+                    
+                    container.appendChild(section);
+                    this.renderizarProdutosPorDia(chaveMes, produtosMes);
+                });
+            }
+
+            renderizarProdutosPorDia(chaveMes, produtos) {
+                const container = document.getElementById(`days-container-${chaveMes}`);
+                
+                if (produtos.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; color: var(--text-secondary); padding: 40px;">
+                            🚫 Nenhum trade finalizado neste mês
+                        </div>
+                    `;
+                    return;
+                }
+
+                const gruposPorDia = this.agruparPorDia(produtos);
+                const diasOrdenados = Object.keys(gruposPorDia).sort((a, b) => 
+                    new Date(b) - new Date(a)
+                );
+
+                diasOrdenados.forEach(chaveData => {
+                    const grupo = gruposPorDia[chaveData];
+                    const dataFormatada = grupo.data.toLocaleDateString('pt-BR', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+
+                    const daySection = document.createElement('div');
+                    daySection.className = 'day-section';
+                    
+                    daySection.innerHTML = `
+                        <div class="day-header">
+                            <div>
+                                📅 ${dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1)}
+                            </div>
+                            <div class="day-stats">
+                                ${grupo.stats.total} trades • R$ ${grupo.stats.investido.toFixed(2)} investido
+                            </div>
+                        </div>
+                        <div class="items-grid" id="items-${chaveData.replace(/\s+/g, '-')}">
+                        </div>
+                    `;
+                    
+                    container.appendChild(daySection);
+                    this.renderizarItensCard(grupo.produtos, `items-${chaveData.replace(/\s+/g, '-')}`);
+                });
+            }
+
+            renderizarItensCard(produtos, containerId) {
+                const container = document.getElementById(containerId);
+                
+                produtos.forEach(produto => {
+                    const card = document.createElement('div');
+                    card.className = 'item-card';
+                    
+                    const lucroFinal = produto.valorFinalReal - produto.precoCompra;
+                    const vendaInfo = `
+                        <div class="item-detail">💵 Venda: <strong>US$ ${produto.precoVenda.toFixed(2)}</strong></div>
+                        <div class="item-detail">💰 Lucro: <strong class="${lucroFinal >= 0 ? 'lucro-positivo' : 'lucro-negativo'}">R$ ${lucroFinal.toFixed(2)}</strong></div>
+                    `;
+                    
+                    const acoes = `
+                        <button class="btn-edit" onclick="gerenciador.abrirModalEdicao(${produto.id})">✏️ Editar</button>
+                        <button class="btn-delete" onclick="gerenciador.removerProduto(${produto.id})">🗑️ Remover</button>
+                    `;
+
+                    card.innerHTML = `
+                        <div class="item-name">${produto.nome}</div>
+                        
+                        <div class="item-status-row">
+                            <span class="status-dinheiro-liberado">🏆 Completo</span>
+                        </div>
+                        
+                        <div class="countdown-text countdown-liberado">
+                            TRADE FINALIZADO
+                        </div>
+                        
+                        <div class="item-info">
+                            <div class="item-detail">💰 Compra: <strong>R$ ${produto.precoCompra.toFixed(2)}</strong></div>
+                            <div class="item-detail">🕐 ${new Date(produto.dataRegistro).toLocaleTimeString('pt-BR')}</div>
+                            ${vendaInfo}
+                        </div>
+                        
+                        <div class="item-actions">
+                            ${acoes}
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                });
+            }
+
+            calcularEstatisticasMes(produtos) {
+                const totalRecebido = produtos.reduce((total, p) => total + p.valorFinalReal, 0);
+                const investido = produtos.reduce((total, p) => total + p.precoCompra, 0);
+                const lucro = totalRecebido - investido;
+                const margem = investido > 0 ? (lucro / investido) * 100 : 0;
+                const cotacaoMedia = produtos.length > 0 ? 
+                    produtos.reduce((total, p) => total + p.cotacaoConversao, 0) / produtos.length : 0;
+
+                return {
+                    totalItens: produtos.length,
+                    investido: investido,
+                    totalRecebido: totalRecebido,
+                    lucro: lucro,
+                    margem: margem,
+                    cotacaoMedia: cotacaoMedia
+                };
+            }
+
+            atualizarHorarios() {
+                const agora = new Date();
+                const proximoReset = this.obterProximoReset();
+                
+                document.getElementById('horario-atual').textContent = agora.toLocaleTimeString('pt-BR');
+                document.getElementById('proximo-reset').textContent = proximoReset.toLocaleTimeString('pt-BR');
+            }
+
+            async buscarCotacaoDolar() {
+                try {
+                    const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD', {
+                        timeout: 5000
+                    });
+                    const data = await response.json();
+                    this.dolarHoje = data.rates.BRL;
+                    
+                    const dolarElement = document.getElementById('dolar-hoje');
+                    if (dolarElement) {
+                        dolarElement.textContent = this.dolarHoje.toFixed(2);
+                    }
+                    
+                    if (!this.isOffline) {
+                        this.showSyncStatus('💱 Cotação atualizada!', 'success');
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar cotação:', error);
+                    this.dolarHoje = this.dolarHoje || 5.50;
+                    const dolarElement = document.getElementById('dolar-hoje');
+                    if (dolarElement) {
+                        dolarElement.textContent = this.dolarHoje.toFixed(2) + ' (offline)';
+                    }
+                }
+            }
+
+            setupEventListeners() {
+                document.getElementById('form-novo').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.adicionarProdutoNovo();
+                });
+
+                document.getElementById('form-antigo').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.adicionarProdutoAntigo();
+                });
+
+                document.getElementById('form-vendido').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.adicionarProdutoVendido();
+                });
+
+                document.getElementById('form-finalizado').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.adicionarProdutoFinalizado();
+                });
+
+                document.getElementById('venda-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.confirmarVenda();
+                });
+
+                document.getElementById('edit-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.confirmarEdicao();
+                });
+
+                document.getElementById('edit-status').addEventListener('change', (e) => {
+                    this.atualizarCamposEdicao(e.target.value);
+                });
+
+                document.getElementById('confirmar-conversao').addEventListener('click', () => {
+                    this.confirmarConversao();
+                });
+
+                document.getElementById('editar-cotacao-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.confirmarEdicaoCotacao();
+                });
+
+                document.getElementById('sync-status').addEventListener('click', () => {
+                    this.tentarSincronizar();
+                });
+
+                document.querySelectorAll('.close').forEach(closeBtn => {
+                    closeBtn.addEventListener('click', () => {
+                        document.querySelectorAll('.modal').forEach(modal => {
+                            modal.style.display = 'none';
+                        });
+                    });
+                });
+
+                window.addEventListener('click', (event) => {
+                    if (event.target.classList.contains('modal')) {
+                        event.target.style.display = 'none';
+                    }
+                });
+            }
+
+            verificarStatusProdutos() {
+                const agora = new Date();
+                let mudancas = false;
+                
+                this.produtos.forEach(produto => {
+                    const dataLiberacaoVenda = new Date(produto.dataLiberacaoVenda);
+                    
+                    if (produto.status === 'aguardando-venda' && agora >= dataLiberacaoVenda) {
+                        produto.status = 'pode-vender';
+                        mudancas = true;
+                    }
+                    
+                    if (produto.status === 'aguardando-dinheiro' && produto.dataLiberacaoDinheiro) {
+                        const dataLiberacaoDinheiro = new Date(produto.dataLiberacaoDinheiro);
+                        if (agora >= dataLiberacaoDinheiro) {
+                            produto.status = 'dinheiro-liberado';
+                            mudancas = true;
+                        }
+                    }
+                });
+                
+                if (mudancas) {
+                    this.salvarDados();
+                }
+            }
+
+            abrirModalVenda(produtoId) {
+                this.produtoVendaAtual = this.produtos.find(p => p.id === produtoId);
+                document.getElementById('vendaModal').style.display = 'block';
+            }
+
+            confirmarVenda() {
+                const precoVenda = parseFloat(document.getElementById('preco-venda-modal').value);
+                const plataforma = document.getElementById('plataforma-modal').value;
+                
+                if (this.produtoVendaAtual) {
+                    const agora = new Date();
+                    const dataLiberacaoDinheiro = this.calcularDataLiberacao(agora, 7);
+                    
+                    this.produtoVendaAtual.precoVenda = precoVenda;
+                    this.produtoVendaAtual.plataforma = plataforma;
+                    this.produtoVendaAtual.dataVenda = agora.toISOString();
+                    this.produtoVendaAtual.dataLiberacaoDinheiro = dataLiberacaoDinheiro.toISOString();
+                    this.produtoVendaAtual.status = 'aguardando-dinheiro';
+                    
+                    this.salvarDados();
+                    this.renderizarTodosProdutos();
+                    this.renderizarVendasProximas();
+                    this.renderizarSaldosProximos();
+                    this.atualizarResumos();
+                    
+                    document.getElementById('vendaModal').style.display = 'none';
+                    document.getElementById('preco-venda-modal').value = '';
+                    document.getElementById('plataforma-modal').value = '';
+                }
+            }
+
+            abrirModalConversao(produtoId) {
+                this.produtoConversaoAtual = this.produtos.find(p => p.id === produtoId);
+                
+                if (this.produtoConversaoAtual) {
+                    document.getElementById('cotacao-conversao').textContent = this.dolarHoje.toFixed(2);
+                    document.getElementById('valor-dolares').textContent = this.produtoConversaoAtual.precoVenda.toFixed(2);
+                    document.getElementById('valor-convertido').textContent = (this.produtoConversaoAtual.precoVenda * this.dolarHoje).toFixed(2);
+                    
+                    document.getElementById('conversaoModal').style.display = 'block';
+                }
+            }
+
+            confirmarConversao() {
+                if (this.produtoConversaoAtual) {
+                    this.produtoConversaoAtual.cotacaoConversao = this.dolarHoje;
+                    this.produtoConversaoAtual.valorFinalReal = this.produtoConversaoAtual.precoVenda * this.dolarHoje;
+                    this.produtoConversaoAtual.status = 'finalizado';
+                    
+                    this.salvarDados();
+                    this.inicializarMeses();
+                    this.renderizarSeletorMeses();
+                    this.renderizarTodosProdutos();
+                    this.renderizarVendasProximas();
+                    this.renderizarSaldosProximos();
+                    this.atualizarResumos();
+                    
+                    document.getElementById('conversaoModal').style.display = 'none';
+                }
+            }
+
+            calcularTempoRestante(dataAlvo) {
+                const agora = new Date();
+                const alvo = new Date(dataAlvo);
+                const diferenca = alvo.getTime() - agora.getTime();
+                
+                if (diferenca <= 0) return 'Liberado';
+                
+                const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
+                const horas = Math.floor((diferenca % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                
+                if (dias === 0) {
+                    return `${horas}h restantes`;
+                } else if (dias === 1) {
+                    return `1 dia ${horas}h`;
+                } else {
+                    return `${dias} dias ${horas}h`;
+                }
+            }
+
+                        removerProduto(id) {
+                if (confirm('🗑️ Tem certeza que deseja remover esta skin?')) {
+                    this.produtos = this.produtos.filter(p => p.id !== id);
+                    this.salvarDados();
+                    this.inicializarMeses();
+                    this.renderizarSeletorMeses();
+                    this.renderizarTodosProdutos();
+                    this.renderizarVendasProximas();
+                    this.renderizarSaldosProximos();
+                    this.atualizarResumos();
+                }
+            }
+
+            atualizarResumos() {
+                const totalInvestido = this.produtos.reduce((total, p) => total + p.precoCompra, 0);
+                
+                const aguardandoVenda = this.produtos
+                    .filter(p => p.status === 'aguardando-venda' || p.status === 'pode-vender')
+                    .reduce((total, p) => total + p.precoCompra, 0);
+                
+                const aguardandoDinheiro = this.produtos
+                    .filter(p => p.status === 'aguardando-dinheiro')
+                    .reduce((total, p) => total + (p.precoVenda * this.dolarHoje), 0);
+                
+                const dinheiroLiberado = this.produtos
+                    .filter(p => p.status === 'dinheiro-liberado' || p.status === 'finalizado')
+                    .reduce((total, p) => total + (p.valorFinalReal || (p.precoVenda * this.dolarHoje)), 0);
+                
+                const lucroTotal = this.produtos
+                    .filter(p => p.status === 'finalizado')
+                    .reduce((total, p) => total + (p.valorFinalReal - p.precoCompra), 0);
+
+                document.getElementById('total-investido').textContent = `R$ ${totalInvestido.toFixed(2)}`;
+                document.getElementById('aguardando-venda').textContent = `R$ ${aguardandoVenda.toFixed(2)}`;
+                document.getElementById('aguardando-dinheiro').textContent = `R$ ${aguardandoDinheiro.toFixed(2)}`;
+                document.getElementById('dinheiro-liberado').textContent = `R$ ${dinheiroLiberado.toFixed(2)}`;
+                document.getElementById('lucro-total').textContent = `R$ ${lucroTotal.toFixed(2)}`;
+                
+                const lucroElement = document.getElementById('lucro-total');
+                lucroElement.className = lucroTotal >= 0 ? 'lucro-positivo' : 'lucro-negativo';
+            }
+
+            iniciarContadorTempo() {
+                setInterval(() => {
+                    this.atualizarHorarios();
+                    this.verificarStatusProdutos();
+                    this.renderizarVendasProximas();
+                    this.renderizarSaldosProximos();
+                    this.atualizarResumos();
+                }, 30000);
+            }
+        }
+
+        let gerenciador;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎮 DOM carregado - inicializando gerenciador...');
+            
+            try {
+                gerenciador = new GerenciadorVendas();
+                window.gerenciador = gerenciador; // Tornar globalmente acessível
+            } catch (error) {
+                console.error('❌ Erro ao criar gerenciador:', error);
+                // Mostrar erro e botão para continuar offline
+                document.getElementById('loading-error').style.display = 'block';
+                document.getElementById('loading-text').textContent = 'Erro na inicialização';
+            }
+            
+            // Atualizar cotação do dólar a cada 30 minutos
+            setInterval(() => {
+                if (gerenciador && gerenciador.buscarCotacaoDolar) {
+                    gerenciador.buscarCotacaoDolar();
+                }
+            }, 1800000);
+        });
+    </script>
+</body>
+</html>
